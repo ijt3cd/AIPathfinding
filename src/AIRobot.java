@@ -30,7 +30,7 @@ public class AIRobot extends Robot{
 		Point current = super.getPosition();
 		Node check = null;
 		
-	for(int i = 0; i < 100; i++){
+	while(true){
 	
 		Point t  = new Point(current.x,  current.y+1);
 		Point tr = new Point(current.x+1,current.y+1);
@@ -91,7 +91,6 @@ public class AIRobot extends Robot{
 //		System.out.println(check.getValue());
 		super.makeGuess(check.getPt(), true);
 		if(ping.equals("F")){
-			System.out.println("found ");
 			ArrayList<Point> path = new ArrayList<Point>();
 			while(check.getPrev()!=null){
 				path.add(check.getPrev().getPt());
@@ -135,7 +134,7 @@ public class AIRobot extends Robot{
 	
 		try {
 		World wo;
-		wo = new World("TestCases/myInputFile3.txt", false);
+		wo = new World("TestCases/myInputFile4.txt", false);
 		wo.createGUI(600, 600, 100);
 		AIRobot aiRobot = new AIRobot();
 		aiRobot.addToWorld(wo);
