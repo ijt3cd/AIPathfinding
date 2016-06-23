@@ -1,5 +1,6 @@
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.PriorityQueue;
 
 import world.Robot;
@@ -27,8 +28,9 @@ public class AIRobot extends Robot{
 
 		
 		Point current = super.getPosition();
+		Node check = null;
 		
-	for(int i = 0; i < 30; i++){
+	for(int i = 0; i < 100; i++){
 	
 		Point t  = new Point(current.x,  current.y+1);
 		Point tr = new Point(current.x+1,current.y+1);
@@ -42,47 +44,67 @@ public class AIRobot extends Robot{
 		++distFromStart;
 		
 		if(!closedList.contains(t)&&!openPointList.contains(t)){
-		openNodeList.add(new Node(t,  distFromStart, hVal(t)));
+		openNodeList.add(new Node(t,  distFromStart, hVal(t),check));
 		openPointList.add(t);
 		}
 		if(!closedList.contains(tr)&&!openPointList.contains(tr)){
-		openNodeList.add(new Node(tr, distFromStart, hVal(tr)));
+		openNodeList.add(new Node(tr, distFromStart, hVal(tr),check));
 		openPointList.add(tr);
 		}
 		if(!closedList.contains(tl)&&!openPointList.contains(tl)){
-		openNodeList.add(new Node(tl, distFromStart, hVal(tl)));
+		openNodeList.add(new Node(tl, distFromStart, hVal(tl),check));
 		openPointList.add(tl);
 		}
 		if(!closedList.contains(r)&&!openPointList.contains(r)){
-		openNodeList.add(new Node(r,  distFromStart, hVal(r)));
+		openNodeList.add(new Node(r,  distFromStart, hVal(r),check));
 		openPointList.add(r);
 		}
 		if(!closedList.contains(l)&&!openPointList.contains(l)){
-		openNodeList.add(new Node(l,  distFromStart, hVal(l)));
+		openNodeList.add(new Node(l,  distFromStart, hVal(l),check));
 		openPointList.add(l);
 		}
 		if(!closedList.contains(b)&&!openPointList.contains(b)){
-		openNodeList.add(new Node(b,  distFromStart, hVal(b)));
+		openNodeList.add(new Node(b,  distFromStart, hVal(b),check));
 		openPointList.add(b);
 		}
 		if(!closedList.contains(br)&&!openPointList.contains(br)){
-		openNodeList.add(new Node(br, distFromStart, hVal(br)));
+		openNodeList.add(new Node(br, distFromStart, hVal(br),check));
 		openPointList.add(br);
 		}
 		if(!closedList.contains(bl)&&!openPointList.contains(bl)){
-		openNodeList.add(new Node(bl, distFromStart, hVal(bl)));
+		openNodeList.add(new Node(bl, distFromStart, hVal(bl),check));
 		openPointList.add(bl);
 		}
 		
-		Node check = openNodeList.poll();
-	
-		current=check.getPt();
 		
+		check = openNodeList.poll();
+		String ping = super.pingMap(check.getPt());
+		while((check.getPt()==null||ping==null)||ping.equals("X")){
+			check = openNodeList.poll();
+			ping = super.pingMap(check.getPt());
+		}
+		current=check.getPt();	
 		closedList.add(check.getPt());
 		distFromStart=check.getDistFromStart();
-		System.out.println(check.getPt());
+
+//		System.out.println(check.getPt());	
 //		System.out.println(check.getValue());
-//		System.out.println(super.pingMap(check.getPt()));
+		super.makeGuess(check.getPt(), true);
+		if(ping.equals("F")){
+			System.out.println("found ");
+			ArrayList<Point> path = new ArrayList<Point>();
+			while(check.getPrev()!=null){
+				path.add(check.getPrev().getPt());
+				check=check.getPrev();
+			}
+			Collections.reverse(path);
+//			System.out.println(path);
+			for(Point p:path){
+				super.move(p);
+				super.move(world.getEndPos());
+			}
+			break;
+		}
 //		System.out.println(openNodeList.size());
 	}
 		
@@ -100,10 +122,7 @@ public class AIRobot extends Robot{
 	
 	@Override
 	public void travelToDestination() {
-//		super.pingMap(new Point(-1,-1));
-//		super.pingMap(new Point(3,3));
-//		super.move(new Point(3,3));
-//		
+		
 		aStar();
 		
 		

@@ -6,13 +6,23 @@ class Node implements Comparable<Node>{
 	private int value;
 	private int distFromStart;
 	private int hVal;
+	private Node prev;
 	
 	
-	public Node(Point pt, int distFromStart, int hVal) {
+	public Node(Point pt, int distFromStart, int hVal, Node prev) {
 		this.pt = pt;
 		this.value = distFromStart+hVal;
 		this.distFromStart = distFromStart;
 		this.hVal = hVal;
+		this.prev = prev;
+	}
+
+	public Node getPrev() {
+		return prev;
+	}
+
+	public void setPrev(Node prev) {
+		this.prev = prev;
 	}
 
 	public Point getPt() {
