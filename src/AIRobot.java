@@ -89,8 +89,7 @@ public class AIRobot extends Robot{
 		closedList.add(check.getPt());
 		distFromStart=check.getDistFromStart();
 
-//		System.out.println(check.getPt());	
-//		System.out.println(check.getValue());
+
 //		super.makeGuess(check.getPt(), true);
 		if(ping.equals("F")){
 			ArrayList<Point> path = new ArrayList<Point>();
@@ -99,14 +98,12 @@ public class AIRobot extends Robot{
 				check=check.getPrev();
 			}
 			Collections.reverse(path);
-//			System.out.println(path);
 			for(Point p:path){
 				super.move(p);
 				super.move(world.getEndPos());
 			}
 			break;
 		}
-//		System.out.println(openNodeList.size());
 	}
 		
 		
@@ -119,7 +116,6 @@ public class AIRobot extends Robot{
 	}
 	
 	public void bStar(){
-//		System.out.println("uncertain case not yet handled");
 		PriorityQueue<Node> openNodeList = new PriorityQueue<Node>(world.numRows()*world.numCols());
 		ArrayList<Point> openPointList = new ArrayList<Point>();
 		ArrayList<Point> closedList = new ArrayList<Point>();
@@ -207,8 +203,6 @@ public class AIRobot extends Robot{
 		closedList.add(check.getPt());
 		distFromStart=check.getDistFromStart();
 
-//		System.out.println(check.getPt());	
-//		System.out.println(check.getValue());
 //		super.makeGuess(check.getPt(), true);
 		if(ping.equals("F")){
 			ArrayList<Point> path = new ArrayList<Point>();
@@ -217,11 +211,9 @@ public class AIRobot extends Robot{
 				check=check.getPrev();
 			}
 			Collections.reverse(path);
-//			System.out.println(path);
 			for(Point p:path){
 				if(super.getPosition().equals(super.move(p))){
 					bClosedList.add(p);
-//					System.out.println("?");
 					bStar();
 					
 				}
@@ -231,7 +223,6 @@ public class AIRobot extends Robot{
 			super.move(world.getEndPos());
 			return;
 		}
-//		System.out.println(openNodeList.size());
 	}
 		
 		
@@ -311,9 +302,7 @@ public class AIRobot extends Robot{
 		if(hVal(check.getPt())>=hVal(super.getPosition())){
 //			super.makeGuess(super.getPosition(), false);
 			closedList.add(super.getPosition());
-//			System.out.println(w);
 			if(w-x==1){
-				System.out.println("!");
 				bClosedList.add(super.getPosition());
 			}
 		}
@@ -325,7 +314,6 @@ public class AIRobot extends Robot{
 			if(openNodeList.isEmpty()){
 //				bClosedList.add(super.getPosition());
 //				super.makeGuess(super.getPosition(), false);
-				System.out.println("?");
 				
 				cStar();
 				break;
@@ -337,7 +325,6 @@ public class AIRobot extends Robot{
 //		super.makeGuess(check.getPt(), false);
 		
 		if(check.getPt().equals(world.getEndPos())){
-			System.out.println("hi");
 			
 			break;
 		}
