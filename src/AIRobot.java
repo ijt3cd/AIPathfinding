@@ -9,7 +9,7 @@ import world.World;
 public class AIRobot extends Robot{
 
 	private World world;
-	private ArrayList bClosedList = new ArrayList<>();
+	private ArrayList<Point> bClosedList = new ArrayList<Point>();
 	private ArrayList bOpenList = new ArrayList<>();
 	
 	@Override
@@ -91,7 +91,7 @@ public class AIRobot extends Robot{
 
 //		System.out.println(check.getPt());	
 //		System.out.println(check.getValue());
-		super.makeGuess(check.getPt(), true);
+//		super.makeGuess(check.getPt(), true);
 		if(ping.equals("F")){
 			ArrayList<Point> path = new ArrayList<Point>();
 			while(check.getPrev()!=null){
@@ -177,14 +177,21 @@ public class AIRobot extends Robot{
 		
 		
 		check = openNodeList.poll();
-		String ping;
+		String ping=null;
+		
+		if(check!=null){
+		if(check.getPt()!=null){
 		if(bOpenList.contains(check.getPt())){
 			ping = "O";
+			
 		}
 		else{
 			ping = super.pingMap(check.getPt());
 		}
-		while((check.getPt()==null||ping==null)||ping.equals("X")||bClosedList.contains(check.getPt())){
+		}
+		}
+		
+		while(check==null||(check.getPt()==null||ping==null)||ping.equals("X")||bClosedList.contains(check.getPt())){
 			check = openNodeList.poll();
 			try
 			{
@@ -231,7 +238,10 @@ public class AIRobot extends Robot{
 	}
 	
 	public void cStar(){
-//		System.out.println("uncertain case not yet handled");
+		//ping everything touching current point
+		//calculate value of each pinged point
+		//put each point onto an arrayList with value, in order
+		//pop the lowest value point onto the closed list and ping its neighbors
 		PriorityQueue<Node> openNodeList = new PriorityQueue<Node>(world.numRows()*world.numCols());
 		ArrayList<Point> openPointList = new ArrayList<Point>();
 		ArrayList<Point> closedList = new ArrayList<Point>();
@@ -240,9 +250,10 @@ public class AIRobot extends Robot{
 		
 		Point current = super.getPosition();
 		Node check = null;
-		
+		int w = 0;
+		int x = 0;
 	while(true){
-	
+		++w;
 		Point t  = new Point(current.x,  current.y+1);
 		Point tr = new Point(current.x+1,current.y+1);
 		Point tl = new Point(current.x-1,current.y+1);
@@ -252,7 +263,7 @@ public class AIRobot extends Robot{
 		Point br = new Point(current.x+1,current.y-1);
 		Point bl = new Point(current.x-1,current.y-1);
 		
-		++distFromStart;
+
 		
 		if(!closedList.contains(t)&&!openPointList.contains(t)){
 		openNodeList.add(new Node(t,  distFromStart, hVal(t),check));
@@ -289,58 +300,58 @@ public class AIRobot extends Robot{
 		
 		
 		check = openNodeList.poll();
-		String ping="O";
-
-//		else{
-//			ping = super.pingMap(check.getPt());
-//		}
-		while((check.getPt()==null||ping==null)||ping.equals("X")||bClosedList.contains(check.getPt())){
+		
+	
+		
+		while(check==null||check.getPt()==null||bClosedList.contains(check.getPt())){
 			check = openNodeList.poll();
-			try
-			{
-				ping = "O";
-			}
-			catch (NullPointerException e)
-			{
-			     cStar();
-			}
-			
 		}
-		current=check.getPt();	
+		
 		closedList.add(check.getPt());
-		distFromStart=check.getDistFromStart();
-
-//		System.out.println(check.getPt());	
-//		System.out.println(check.getValue());
-//		super.makeGuess(check.getPt(), true);
-		if(ping.equals("F")){
-			ArrayList<Point> path = new ArrayList<Point>();
-			while(check.getPrev()!=null){
-				path.add(check.getPrev().getPt());
-				check=check.getPrev();
+		if(hVal(check.getPt())>=hVal(super.getPosition())){
+//			super.makeGuess(super.getPosition(), false);
+			closedList.add(super.getPosition());
+//			System.out.println(w);
+			if(w-x==1){
+				System.out.println("!");
+				bClosedList.add(super.getPosition());
 			}
-			Collections.reverse(path);
-//			System.out.println(path);
-			for(Point p:path){
-				if(super.getPosition().equals(super.move(p))){
-					bClosedList.add(p);
-//					System.out.println("?");
-					cStar();
-					
-				}
-				bOpenList.add(p);
-				
-			}
-			super.move(world.getEndPos());
-			return;
 		}
-//		System.out.println(openNodeList.size());
-	}
 		
 		
+		if(super.getPosition().equals(super.move(check.getPt()))){
+			++x;
+//			bClosedList.add(check.getPt());
+			if(openNodeList.isEmpty()){
+//				bClosedList.add(super.getPosition());
+//				super.makeGuess(super.getPosition(), false);
+				System.out.println("?");
+				
+				cStar();
+				break;
+			}
+		}
+
+
+		current = super.getPosition();
+//		super.makeGuess(check.getPt(), false);
+		
+		if(check.getPt().equals(world.getEndPos())){
+			System.out.println("hi");
+			
+			break;
+		}
+	
+		
+		//Look at all adjacent positions
+		//Ignore the positions in closedList or wallList
+		//pop the best move off of priority Q
+		//Add current point to closed list and make the best move
+		//repeat until wall is hit or end is found
+		//if wall is hit, add wall and current position to 
 	}
 	
-	
+	}
 	@Override
 	public void travelToDestination() {
 		
@@ -348,12 +359,14 @@ public class AIRobot extends Robot{
 			aStar();
 		}
 		else{
-			bStar();
+			cStar();
 		}
 		
 		
 
 	}
+		
+	
 	
 	
 	
@@ -361,7 +374,7 @@ public class AIRobot extends Robot{
 	
 		try {
 		World wo;
-		wo = new World("TestCases/myInputFile1.txt", true);
+		wo = new World("TestCases/myInputFile4.txt", true);
 		wo.createGUI(600, 600, 100);
 		AIRobot aiRobot = new AIRobot();
 		aiRobot.addToWorld(wo);
