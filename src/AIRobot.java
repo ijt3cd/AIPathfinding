@@ -9,6 +9,8 @@ import world.World;
 public class AIRobot extends Robot{
 
 	private World world;
+	private ArrayList bClosedList = new ArrayList<>();
+	private ArrayList bOpenList = new ArrayList<>();
 	
 	@Override
 	public void addToWorld(World world){
@@ -117,7 +119,7 @@ public class AIRobot extends Robot{
 	}
 	
 	public void bStar(){
-		System.out.println("uncertain case not yet handled");
+//		System.out.println("uncertain case not yet handled");
 		PriorityQueue<Node> openNodeList = new PriorityQueue<Node>(world.numRows()*world.numCols());
 		ArrayList<Point> openPointList = new ArrayList<Point>();
 		ArrayList<Point> closedList = new ArrayList<Point>();
@@ -175,8 +177,14 @@ public class AIRobot extends Robot{
 		
 		
 		check = openNodeList.poll();
-		String ping = super.pingMap(check.getPt());
-		while((check.getPt()==null||ping==null)||ping.equals("X")){
+		String ping;
+		if(bOpenList.contains(check.getPt())){
+			ping = "O";
+		}
+		else{
+			ping = super.pingMap(check.getPt());
+		}
+		while((check.getPt()==null||ping==null)||ping.equals("X")||bClosedList.contains(check.getPt())){
 			check = openNodeList.poll();
 			try
 			{
@@ -194,7 +202,7 @@ public class AIRobot extends Robot{
 
 //		System.out.println(check.getPt());	
 //		System.out.println(check.getValue());
-		super.makeGuess(check.getPt(), true);
+//		super.makeGuess(check.getPt(), true);
 		if(ping.equals("F")){
 			ArrayList<Point> path = new ArrayList<Point>();
 			while(check.getPrev()!=null){
@@ -205,12 +213,15 @@ public class AIRobot extends Robot{
 //			System.out.println(path);
 			for(Point p:path){
 				if(super.getPosition().equals(super.move(p))){
-					System.out.println("?");
+					bClosedList.add(p);
+//					System.out.println("?");
 					bStar();
 					
 				}
-				super.move(world.getEndPos());
+				bOpenList.add(p);
+				
 			}
+			super.move(world.getEndPos());
 			return;
 		}
 //		System.out.println(openNodeList.size());
@@ -219,6 +230,115 @@ public class AIRobot extends Robot{
 		
 	}
 	
+	public void cStar(){
+//		System.out.println("uncertain case not yet handled");
+		PriorityQueue<Node> openNodeList = new PriorityQueue<Node>(world.numRows()*world.numCols());
+		ArrayList<Point> openPointList = new ArrayList<Point>();
+		ArrayList<Point> closedList = new ArrayList<Point>();
+		int distFromStart = 0;
+
+		
+		Point current = super.getPosition();
+		Node check = null;
+		
+	while(true){
+	
+		Point t  = new Point(current.x,  current.y+1);
+		Point tr = new Point(current.x+1,current.y+1);
+		Point tl = new Point(current.x-1,current.y+1);
+		Point r  = new Point(current.x+1,current.y  );
+		Point l  = new Point(current.x-1,current.y  );
+		Point b  = new Point(current.x,  current.y-1);
+		Point br = new Point(current.x+1,current.y-1);
+		Point bl = new Point(current.x-1,current.y-1);
+		
+		++distFromStart;
+		
+		if(!closedList.contains(t)&&!openPointList.contains(t)){
+		openNodeList.add(new Node(t,  distFromStart, hVal(t),check));
+		openPointList.add(t);
+		}
+		if(!closedList.contains(tr)&&!openPointList.contains(tr)){
+		openNodeList.add(new Node(tr, distFromStart, hVal(tr),check));
+		openPointList.add(tr);
+		}
+		if(!closedList.contains(tl)&&!openPointList.contains(tl)){
+		openNodeList.add(new Node(tl, distFromStart, hVal(tl),check));
+		openPointList.add(tl);
+		}
+		if(!closedList.contains(r)&&!openPointList.contains(r)){
+		openNodeList.add(new Node(r,  distFromStart, hVal(r),check));
+		openPointList.add(r);
+		}
+		if(!closedList.contains(l)&&!openPointList.contains(l)){
+		openNodeList.add(new Node(l,  distFromStart, hVal(l),check));
+		openPointList.add(l);
+		}
+		if(!closedList.contains(b)&&!openPointList.contains(b)){
+		openNodeList.add(new Node(b,  distFromStart, hVal(b),check));
+		openPointList.add(b);
+		}
+		if(!closedList.contains(br)&&!openPointList.contains(br)){
+		openNodeList.add(new Node(br, distFromStart, hVal(br),check));
+		openPointList.add(br);
+		}
+		if(!closedList.contains(bl)&&!openPointList.contains(bl)){
+		openNodeList.add(new Node(bl, distFromStart, hVal(bl),check));
+		openPointList.add(bl);
+		}
+		
+		
+		check = openNodeList.poll();
+		String ping="O";
+
+//		else{
+//			ping = super.pingMap(check.getPt());
+//		}
+		while((check.getPt()==null||ping==null)||ping.equals("X")||bClosedList.contains(check.getPt())){
+			check = openNodeList.poll();
+			try
+			{
+				ping = "O";
+			}
+			catch (NullPointerException e)
+			{
+			     cStar();
+			}
+			
+		}
+		current=check.getPt();	
+		closedList.add(check.getPt());
+		distFromStart=check.getDistFromStart();
+
+//		System.out.println(check.getPt());	
+//		System.out.println(check.getValue());
+//		super.makeGuess(check.getPt(), true);
+		if(ping.equals("F")){
+			ArrayList<Point> path = new ArrayList<Point>();
+			while(check.getPrev()!=null){
+				path.add(check.getPrev().getPt());
+				check=check.getPrev();
+			}
+			Collections.reverse(path);
+//			System.out.println(path);
+			for(Point p:path){
+				if(super.getPosition().equals(super.move(p))){
+					bClosedList.add(p);
+//					System.out.println("?");
+					cStar();
+					
+				}
+				bOpenList.add(p);
+				
+			}
+			super.move(world.getEndPos());
+			return;
+		}
+//		System.out.println(openNodeList.size());
+	}
+		
+		
+	}
 	
 	
 	@Override
@@ -241,7 +361,7 @@ public class AIRobot extends Robot{
 	
 		try {
 		World wo;
-		wo = new World("TestCases/myInputFile3.txt", true);
+		wo = new World("TestCases/myInputFile1.txt", true);
 		wo.createGUI(600, 600, 100);
 		AIRobot aiRobot = new AIRobot();
 		aiRobot.addToWorld(wo);
